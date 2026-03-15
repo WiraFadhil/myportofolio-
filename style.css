@@ -10,6 +10,7 @@ body {
   background-color: #fcfcfb;
   color: #1c1917;
   overflow-x: hidden;
+  width: 100%;
 }
 
 h1,
@@ -24,8 +25,14 @@ h4,
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+@media (min-width: 640px) {
+  .content-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
 }
 
 .bg-soft-gradient {
@@ -57,7 +64,7 @@ h4,
 
 .reveal {
   opacity: 0;
-  transform: translateY(30px);
+  transform: translateY(20px);
   transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .reveal.active {
@@ -68,10 +75,12 @@ h4,
 .card-hover {
   transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
 }
-.card-hover:hover {
-  transform: translateY(-8px) scale(1.01);
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.06);
-  border-color: rgba(249, 115, 22, 0.3);
+@media (min-width: 1024px) {
+  .card-hover:hover {
+    transform: translateY(-8px) scale(1.01);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.06);
+    border-color: rgba(249, 115, 22, 0.3);
+  }
 }
 
 @keyframes float {
@@ -127,17 +136,22 @@ h4,
 /* Timeline specific styles */
 .timeline-line {
   position: absolute;
-  left: 28px;
+  left: 18px;
   top: 0;
   bottom: 0;
   width: 2px;
-  background: linear-gradient(to bottom, #e5e7eb 0%, #e5e7eb 100%);
+  background: #e5e7eb;
   z-index: 0;
+}
+@media (min-width: 640px) {
+  .timeline-line {
+    left: 28px;
+  }
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 5px;
 }
 ::-webkit-scrollbar-track {
   background: #f1f1f1;
@@ -146,13 +160,13 @@ h4,
   background: #e5e7eb;
   border-radius: 10px;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #d1d5db;
-}
 
 /* Folder Style */
 .folder-stack {
   position: relative;
+  /* Memberikan ruang agar stack di belakang tidak menabrak batas layar */
+  margin-right: 12px;
+  margin-top: 12px;
 }
 .folder-stack::before,
 .folder-stack::after {
@@ -164,7 +178,7 @@ h4,
   height: 100%;
   background: white;
   border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 2.5rem;
+  border-radius: 1.5rem;
   z-index: -1;
   transition: all 0.3s ease;
 }
@@ -176,9 +190,31 @@ h4,
   transform: translate(12px, -12px);
   opacity: 0.3;
 }
-.folder-stack:hover::before {
-  transform: translate(10px, -10px);
+
+@media (min-width: 768px) {
+  .folder-stack {
+    margin-right: 0;
+    margin-top: 0;
+  }
+  .folder-stack::before {
+    transform: translate(6px, -6px);
+  }
+  .folder-stack::after {
+    transform: translate(12px, -12px);
+  }
+  .folder-stack:hover::before {
+    transform: translate(10px, -10px);
+  }
+  .folder-stack:hover::after {
+    transform: translate(20px, -20px);
+  }
 }
-.folder-stack:hover::after {
-  transform: translate(20px, -20px);
+
+/* Hide scrollbar for admin tabs */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

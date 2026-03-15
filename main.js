@@ -9,11 +9,23 @@ let currentCertFilter = null;
 window.onscroll = () => {
   const header = document.getElementById("main-header");
   if (window.scrollY > 40) {
-    header.classList.add("glass-nav", "py-4");
-    header.classList.remove("py-8");
+    header.classList.add(
+      "glass-nav",
+      "py-3",
+      "sm:py-4",
+      "shadow-xl",
+      "shadow-stone-900/5",
+    );
+    header.classList.remove("py-5", "sm:py-8");
   } else {
-    header.classList.remove("glass-nav", "py-4");
-    header.classList.add("py-8");
+    header.classList.remove(
+      "glass-nav",
+      "py-3",
+      "sm:py-4",
+      "shadow-xl",
+      "shadow-stone-900/5",
+    );
+    header.classList.add("py-5", "sm:py-8");
   }
 };
 
@@ -28,6 +40,7 @@ loginForm.onsubmit = async (e) => {
   const password = document.getElementById("admin-pass").value;
   const btn = document.getElementById("login-btn");
   btn.innerText = "AUTHENTICATING...";
+  btn.disabled = true;
   const { error } = await supabaseClient.auth.signInWithPassword({
     email,
     password,
@@ -35,6 +48,7 @@ loginForm.onsubmit = async (e) => {
   if (error) {
     showNotification("Access Denied: " + error.message, true);
     btn.innerText = "RETRY";
+    btn.disabled = false;
   } else {
     isAdmin = true;
     closeAdminLogin();
@@ -94,55 +108,53 @@ function renderProjects(data) {
   if (userGrid)
     userGrid.innerHTML = data.length
       ? ""
-      : `<p class="col-span-full text-center text-stone-300 py-20 font-bold">No visions deployed yet.</p>`;
+      : `<div class="col-span-full text-center text-stone-300 py-16 font-bold flex flex-col items-center gap-4"><i data-lucide="layout" class="w-12 h-12 opacity-20"></i> No projects deployed yet.</div>`;
   if (adminGrid) adminGrid.innerHTML = "";
 
   data.forEach((p, index) => {
     if (userGrid) {
       const card = document.createElement("div");
       card.className =
-        "reveal card-hover glass-card rounded-[2.5rem] overflow-hidden group border border-stone-100 shadow-sm mb-4";
+        "reveal glass-card rounded-[2.5rem] overflow-hidden group border border-stone-100 shadow-sm flex flex-col h-full";
       card.style.transitionDelay = `${index * 100}ms`;
       card.innerHTML = `
-        <div class="flex flex-col h-full">
-            <a href="${p.link}" target="_blank" class="img-container block overflow-hidden">
-                <img src="${p.image}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" onerror="this.src='https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop'" />
+            <a href="${p.link}" target="_blank" class="img-container block overflow-hidden shrink-0 aspect-[16/10]">
+                <img src="${p.image}" class="w-full h-full object-cover transition-transform duration-700 lg:group-hover:scale-110" onerror="this.src='https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop'" />
             </a>
-            <div class="p-9 flex-grow flex flex-col gap-5">
-                <div class="flex flex-wrap gap-2.5">
+            <div class="p-6 sm:p-9 flex-grow flex flex-col gap-4">
+                <div class="flex flex-wrap gap-2">
                     ${
                       p.tech
                         ? p.tech
                             .split(",")
                             .map(
                               (t) =>
-                                `<span class="px-3 py-1 bg-stone-50 text-stone-500 text-[9px] font-black uppercase rounded-lg tracking-[0.2em] border border-stone-100">${t.trim()}</span>`,
+                                `<span class="px-2.5 py-1 bg-stone-50 text-stone-500 text-[8px] sm:text-[9px] font-black uppercase rounded-lg tracking-wider border border-stone-100 shadow-sm">${t.trim()}</span>`,
                             )
                             .join("")
                         : ""
                     }
                 </div>
-                <div class="space-y-3">
-                    <h4 class="text-2xl font-black text-stone-900 tracking-tight leading-tight">${p.title}</h4>
-                    <p class="text-stone-400 text-sm font-medium line-clamp-3">${p.description}</p>
+                <div class="space-y-2">
+                    <h4 class="text-xl sm:text-2xl font-black text-stone-900 tracking-tight leading-tight group-hover:text-orange-500 transition-colors">${p.title}</h4>
+                    <p class="text-stone-400 text-xs sm:text-sm font-medium line-clamp-3 leading-relaxed">${p.description}</p>
                 </div>
-                <a href="${p.link}" target="_blank" class="flex items-center gap-2 text-stone-900 font-black text-[10px] uppercase tracking-widest group/link mt-auto pt-4">
+                <a href="${p.link}" target="_blank" class="flex items-center gap-2 text-stone-900 font-black text-[10px] uppercase tracking-widest group/link mt-auto pt-4 transition-all hover:text-orange-500">
                     Launch Project <i data-lucide="arrow-right" class="w-3.5 h-3.5 transition-transform group-hover/link:translate-x-1"></i>
                 </a>
-            </div>
-        </div>`;
+            </div>`;
       userGrid.appendChild(card);
     }
     if (adminGrid) {
       const aCard = document.createElement("div");
       aCard.className =
-        "glass-card p-5 rounded-2xl flex justify-between items-center border border-stone-100 shadow-sm mb-4";
+        "glass-card p-4 rounded-2xl flex justify-between items-center border border-stone-100 shadow-sm";
       aCard.innerHTML = `
-        <div class="flex items-center gap-4">
-            <img src="${p.image}" class="w-12 h-12 rounded-xl object-cover" />
-            <h5 class="font-black text-[11px] text-stone-800 uppercase line-clamp-1">${p.title}</h5>
+        <div class="flex items-center gap-3 overflow-hidden">
+            <img src="${p.image}" class="w-10 h-10 rounded-lg object-cover shrink-0" />
+            <h5 class="font-black text-[10px] text-stone-800 uppercase truncate">${p.title}</h5>
         </div>
-        <button onclick="window.deleteData('projects', '${p.id}')" class="p-2.5 text-rose-400 hover:bg-rose-50 rounded-xl transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+        <button onclick="window.deleteData('projects', '${p.id}')" class="p-2.5 text-rose-400 hover:bg-rose-50 rounded-xl transition-all shrink-0"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
       adminGrid.appendChild(aCard);
     }
   });
@@ -156,35 +168,35 @@ function renderExperience(data) {
   if (userList)
     userList.innerHTML = data.length
       ? ""
-      : `<p class="text-stone-300 font-bold italic py-10">Waiting for first footprint...</p>`;
+      : `<p class="text-stone-300 font-bold italic py-10 px-8">No footprints found in the timeline yet.</p>`;
   if (adminList) adminList.innerHTML = "";
 
   data.forEach((exp, index) => {
     if (userList) {
       const card = document.createElement("div");
       card.className =
-        "reveal glass-card p-7 rounded-[2rem] border border-stone-100 flex flex-col gap-4 card-hover mb-4 relative z-10 ml-8";
+        "reveal glass-card p-6 sm:p-8 rounded-[2rem] border border-stone-100 flex flex-col gap-4 mb-4 relative z-10 ml-6 sm:ml-8 card-hover";
       card.style.transitionDelay = `${index * 150}ms`;
       card.innerHTML = `
-        <div class="absolute -left-[44px] top-8 w-6 h-6 bg-white border-4 border-blue-500 rounded-full shadow-lg z-20"></div>
-        <div class="flex items-start gap-6">
-            <div class="shrink-0 w-12 h-12 bg-white border border-stone-100 rounded-xl flex items-center justify-center text-blue-500 shadow-sm"><i data-lucide="milestone" class="w-5 h-5"></i></div>
+        <div class="absolute -left-[35px] sm:-left-[45px] top-8 sm:top-10 w-5 h-5 sm:w-6 sm:h-6 bg-white border-4 border-blue-500 rounded-full shadow-lg z-20 transition-transform group-hover:scale-125"></div>
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div class="shrink-0 w-12 h-12 bg-white border border-stone-100 rounded-2xl flex items-center justify-center text-blue-500 shadow-sm"><i data-lucide="milestone" class="w-6 h-6"></i></div>
             <div class="space-y-1 flex-grow">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <h4 class="text-xl font-black text-stone-900 tracking-tight leading-none">${exp.title}</h4>
-                    <span class="text-[9px] font-black text-blue-500 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full border border-blue-100 w-fit">${exp.period}</span>
+                    <h4 class="text-lg sm:text-xl font-black text-stone-900 tracking-tight leading-none">${exp.title}</h4>
+                    <span class="text-[8px] sm:text-[9px] font-black text-blue-500 uppercase tracking-widest bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100 w-fit">${exp.period}</span>
                 </div>
-                <p class="text-stone-400 font-black text-[10px] uppercase tracking-widest leading-none">${exp.company}</p>
+                <p class="text-stone-400 font-black text-[9px] sm:text-[10px] uppercase tracking-widest leading-none">${exp.company}</p>
             </div>
         </div>
-        <p class="text-stone-500 text-sm leading-relaxed font-medium pl-1 opacity-80">${exp.description}</p>`;
+        <p class="text-stone-50 text-xs sm:text-sm leading-relaxed font-medium pl-1 opacity-90">${exp.description}</p>`;
       userList.appendChild(card);
     }
     if (adminList) {
       const aItem = document.createElement("div");
       aItem.className =
-        "glass-card p-5 rounded-2xl flex justify-between items-center bg-white shadow-sm mb-4";
-      aItem.innerHTML = `<div class="text-xs font-black text-stone-900 uppercase tracking-tight">${exp.title} | ${exp.company}</div><button onclick="window.deleteData('experience', '${exp.id}')" class="p-2.5 text-rose-400 hover:bg-rose-50 rounded-xl transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+        "glass-card p-4 sm:p-5 rounded-2xl flex justify-between items-center bg-white shadow-sm mb-4";
+      aItem.innerHTML = `<div class="text-[10px] sm:text-xs font-black text-stone-900 uppercase tracking-tight truncate mr-4">${exp.title} | ${exp.company}</div><button onclick="window.deleteData('experience', '${exp.id}')" class="p-2.5 text-rose-400 hover:bg-rose-50 rounded-xl shrink-0 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
       adminList.appendChild(aItem);
     }
   });
@@ -199,90 +211,74 @@ function renderCertificates(data) {
 
   if (userList) {
     userList.innerHTML = "";
-
     if (currentCertFilter) {
       filterInfo.classList.remove("hidden");
       document.getElementById("active-issuer").innerText = currentCertFilter;
-
       const filtered = allCertificates.filter(
         (c) => c.issuer === currentCertFilter,
       );
-
       filtered.forEach((s, index) => {
         const card = document.createElement("div");
         card.className =
-          "reveal glass-card p-8 rounded-[2.5rem] border border-stone-100 flex flex-col gap-6 card-hover mb-4 relative overflow-hidden group";
+          "reveal glass-card p-6 sm:p-8 rounded-[2rem] sm:rounded-[3rem] border border-stone-100 flex flex-col gap-6 mb-4 relative overflow-hidden group shadow-sm";
         card.style.transitionDelay = `${index * 100}ms`;
-
         const isPdf = s.image && s.image.toLowerCase().endsWith(".pdf");
-
         card.innerHTML = `
-                <div class="flex items-start gap-6">
-                    <div class="shrink-0 w-16 h-16 bg-white border border-stone-100 rounded-2xl flex items-center justify-center ${isPdf ? "text-rose-500" : "text-emerald-600"} shadow-lg transition-transform group-hover:scale-110">
-                        <i data-lucide="${isPdf ? "file-text" : "award"}" class="w-8 h-8"></i>
+                <div class="flex items-start gap-5 sm:gap-6">
+                    <div class="shrink-0 w-12 h-12 sm:w-16 sm:h-16 bg-white border border-stone-100 rounded-2xl flex items-center justify-center ${isPdf ? "text-rose-500" : "text-emerald-600"} shadow-lg transition-transform group-hover:scale-110">
+                        <i data-lucide="${isPdf ? "file-text" : "award"}" class="w-6 h-6 sm:w-8 sm:h-8"></i>
                     </div>
-                    <div class="space-y-2 flex-grow">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                            <h4 class="text-2xl font-black text-stone-900 tracking-tight leading-none group-hover:text-emerald-600 transition-colors">${s.title}</h4>
-                            <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 px-4 py-1.5 rounded-full border border-emerald-100 inline-block w-fit">${s.date}</span>
+                    <div class="space-y-1 sm:space-y-2 flex-grow">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <h4 class="text-lg sm:text-2xl font-black text-stone-900 tracking-tight leading-none group-hover:text-emerald-600 transition-colors">${s.title}</h4>
+                            <span class="text-[8px] sm:text-[9px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100 w-fit">${s.date}</span>
                         </div>
-                        <p class="text-stone-400 font-bold text-xs uppercase tracking-widest leading-none">${isPdf ? "PDF DOCUMENT" : "CERTIFICATE IMAGE"}</p>
+                        <p class="text-stone-400 font-bold text-[9px] sm:text-[10px] uppercase tracking-widest leading-none">${isPdf ? "DOKUMEN PDF" : "GAMBAR SERTIFIKAT"}</p>
                     </div>
                 </div>
-                <p class="text-stone-500 text-base leading-relaxed font-medium px-2">${s.description || "Tidak ada deskripsi tambahan."}</p>
-                
-                <div class="flex gap-4 px-2">
+                <p class="text-stone-500 text-xs sm:text-base leading-relaxed font-medium px-1 sm:px-2 opacity-90">${s.description || ""}</p>
+                <div class="flex gap-4 px-1 sm:px-2">
                     ${
                       s.image
                         ? `
-                        <a href="${s.image}" target="_blank" class="flex-grow flex items-center justify-center gap-3 py-4 bg-stone-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-xl active:scale-95">
-                            <i data-lucide="external-link" class="w-4 h-4"></i> Lihat Dokumen Asli
+                        <a href="${s.image}" target="_blank" class="flex-grow flex items-center justify-center gap-3 py-4 bg-stone-900 text-white rounded-2xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest shadow-xl hover:bg-emerald-600 transition-all active:scale-95">
+                            <i data-lucide="external-link" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i> Lihat Dokumen
                         </a>
                     `
-                        : `
-                        <div class="flex-grow py-4 bg-stone-100 text-stone-400 rounded-2xl font-black text-[10px] uppercase tracking-widest text-center">
-                            File Tidak Tersedia
-                        </div>
-                    `
+                        : `<div class="flex-grow py-4 bg-stone-100 text-stone-300 text-center text-[10px] font-black rounded-2xl">FILE TIDAK TERSEDIA</div>`
                     }
-                </div>
-              `;
+                </div>`;
         userList.appendChild(card);
       });
     } else {
       filterInfo.classList.add("hidden");
       const issuers = [...new Set(allCertificates.map((c) => c.issuer))];
-
       if (issuers.length === 0) {
-        userList.innerHTML = `<p class="text-stone-300 font-bold italic py-10">Belum ada pengakuan yang terdaftar.</p>`;
+        userList.innerHTML = `<div class="text-center text-stone-300 py-16 font-bold flex flex-col items-center gap-4"><i data-lucide="award" class="w-12 h-12 opacity-20"></i> No certifications recognized yet.</div>`;
       }
-
       issuers.forEach((issuer, index) => {
         const issuerCerts = allCertificates.filter((c) => c.issuer === issuer);
         const card = document.createElement("div");
+        // Ditambahkan margin horizontal agar stack tidak overflow di mobile
         card.className =
-          "reveal folder-stack glass-card p-10 rounded-[2.5rem] border border-stone-100 flex items-center justify-between card-hover mb-8 cursor-pointer group";
+          "reveal folder-stack glass-card p-5 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-stone-100 flex items-center justify-between mb-8 cursor-pointer group shadow-sm active:scale-[0.98] transition-all";
         card.style.transitionDelay = `${index * 100}ms`;
         card.onclick = () => filterByIssuer(issuer);
-
         card.innerHTML = `
-                <div class="flex items-center gap-8">
-                    <div class="w-20 h-20 bg-stone-900 rounded-[2rem] flex items-center justify-center text-white shadow-2xl transition-transform group-hover:rotate-6">
-                        <i data-lucide="folder" class="w-10 h-10 text-orange-500"></i>
+                <div class="flex items-center gap-4 sm:gap-8 overflow-hidden flex-1">
+                    <div class="w-12 h-12 sm:w-20 sm:h-20 bg-stone-900 rounded-2xl sm:rounded-[2rem] flex items-center justify-center text-white shrink-0 group-hover:rotate-6 transition-transform">
+                        <i data-lucide="folder" class="w-6 h-6 sm:w-10 sm:h-10 text-orange-500"></i>
                     </div>
-                    <div>
-                        <h4 class="text-3xl font-black text-stone-900 tracking-tight mb-2">${issuer}</h4>
+                    <div class="overflow-hidden">
+                        <h4 class="text-lg sm:text-3xl font-black text-stone-900 tracking-tight mb-1 sm:mb-2 truncate pr-2">${issuer}</h4>
                         <div class="flex items-center gap-2">
-                             <span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase rounded-lg border border-emerald-100">
-                                ${issuerCerts.length} Dokumen Tersedia
-                             </span>
+                             <span class="px-2 sm:px-3 py-1 bg-emerald-50 text-emerald-600 text-[8px] sm:text-[10px] font-black uppercase rounded-lg border border-emerald-100">${issuerCerts.length} Dokumen</span>
                         </div>
                     </div>
                 </div>
-                <div class="w-12 h-12 rounded-full border border-stone-100 flex items-center justify-center text-stone-400 group-hover:bg-orange-500 group-hover:text-white transition-all shadow-sm">
-                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
-                </div>
-              `;
+                <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-full border border-stone-100 flex items-center justify-center text-stone-400 shrink-0 group-hover:bg-orange-500 group-hover:text-white group-hover:border-orange-500 transition-all shadow-sm">
+                    <i data-lucide="arrow-right" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                </div>`;
         userList.appendChild(card);
       });
     }
@@ -293,12 +289,11 @@ function renderCertificates(data) {
     allCertificates.forEach((s) => {
       const aCard = document.createElement("div");
       aCard.className =
-        "glass-card p-5 rounded-2xl flex justify-between items-center bg-white shadow-sm mb-4";
-      aCard.innerHTML = `<div class="text-[11px] font-black uppercase text-stone-900">${s.title.substring(0, 30)}... <span class="text-stone-300">@ ${s.issuer}</span></div><button onclick="window.deleteData('certificates', '${s.id}')" class="p-2.5 text-rose-400 hover:bg-rose-50 rounded-xl transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+        "glass-card p-4 rounded-2xl flex justify-between items-center bg-white mb-3 shadow-sm border border-stone-50";
+      aCard.innerHTML = `<div class="text-[10px] sm:text-[11px] font-black uppercase text-stone-900 truncate mr-2">${s.title.substring(0, 25)}... <span class="text-stone-300">@ ${s.issuer}</span></div><button onclick="window.deleteData('certificates', '${s.id}')" class="p-2.5 text-rose-400 hover:bg-rose-50 rounded-xl shrink-0 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
       adminList.appendChild(aCard);
     });
   }
-
   lucide.createIcons();
   initReveal();
 }
@@ -306,12 +301,13 @@ function renderCertificates(data) {
 function filterByIssuer(issuer) {
   currentCertFilter = issuer;
   renderCertificates(allCertificates);
-  document.getElementById("experience").scrollIntoView({ behavior: "smooth" });
+  document.getElementById("certs-title").scrollIntoView({ behavior: "smooth" });
 }
 
 function clearCertFilter() {
   currentCertFilter = null;
   renderCertificates(allCertificates);
+  document.getElementById("certs-title").scrollIntoView({ behavior: "smooth" });
 }
 
 function renderMessagesAdmin(data) {
@@ -319,17 +315,20 @@ function renderMessagesAdmin(data) {
   if (list) {
     list.innerHTML = data.length
       ? ""
-      : `<p class="text-stone-300 font-bold text-xs p-6 italic">Inbox empty.</p>`;
+      : `<div class="col-span-full text-center text-stone-300 py-12 italic font-bold">Your inbox is a quiet sanctuary.</div>`;
     data.forEach((m) => {
       const item = document.createElement("div");
       item.className =
-        "glass-card p-8 rounded-[2.5rem] border-l-[10px] border-orange-500 space-y-4 mb-4";
+        "glass-card p-6 sm:p-8 rounded-[2rem] border-l-[10px] border-orange-500 space-y-4 mb-4 shadow-sm";
       item.innerHTML = `
         <div class="flex justify-between items-start">
-            <div><h5 class="font-black text-stone-900 text-lg">${m.name}</h5><p class="text-xs text-stone-400 font-bold">${m.email}</p></div>
-            <button onclick="window.deleteData('messages', '${m.id}')" class="text-rose-400 p-2.5 rounded-xl"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+            <div class="overflow-hidden">
+                <h5 class="font-black text-stone-900 text-lg sm:text-xl truncate leading-tight">${m.name}</h5>
+                <p class="text-[10px] sm:text-xs text-stone-400 font-bold truncate tracking-wide">${m.email}</p>
+            </div>
+            <button onclick="window.deleteData('messages', '${m.id}')" class="text-rose-400 p-2.5 hover:bg-rose-50 rounded-xl transition-all shrink-0"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
         </div>
-        <p class="bg-white/50 p-6 rounded-2xl text-stone-600 font-medium italic text-sm">"${m.message}"</p>`;
+        <p class="bg-white/50 p-5 rounded-2xl text-stone-600 font-medium italic text-sm sm:text-base leading-relaxed">"${m.message}"</p>`;
       list.appendChild(item);
     });
   }
@@ -340,10 +339,10 @@ window.deleteData = async (table, id) => {
   if (!confirm("Hapus data selamanya?")) return;
   const { error } = await supabaseClient.from(table).delete().eq("id", id);
   if (!error) {
-    showNotification("Data Berhasil Dihapus!");
+    showNotification("Removed successfully!");
     refreshAllData();
   } else {
-    showNotification("Gagal Menghapus: " + error.message, true);
+    showNotification("Error: " + error.message, true);
   }
 };
 
@@ -362,13 +361,13 @@ document.getElementById("project-form").onsubmit = async (e) => {
       const { error: uploadError } = await supabaseClient.storage
         .from("projects")
         .upload(fileName, file);
-      if (uploadError) throw uploadError;
-      const {
-        data: { publicUrl },
-      } = supabaseClient.storage.from("projects").getPublicUrl(fileName);
-      imageUrl = publicUrl;
+      if (!uploadError) {
+        const {
+          data: { publicUrl },
+        } = supabaseClient.storage.from("projects").getPublicUrl(fileName);
+        imageUrl = publicUrl;
+      }
     }
-
     const { error } = await supabaseClient.from("projects").insert([
       {
         title: document.getElementById("p-title").value,
@@ -378,17 +377,14 @@ document.getElementById("project-form").onsubmit = async (e) => {
         description: document.getElementById("p-desc").value,
       },
     ]);
-    if (error) throw error;
-
-    showNotification("Project Berhasil Disimpan!");
-    e.target.reset();
-    toggleModal("project-modal", false);
-    refreshAllData();
-  } catch (err) {
-    showNotification("Error Proyek: " + err.message, true);
-    console.error(err);
+    if (!error) {
+      showNotification("Project Deployed!");
+      e.target.reset();
+      toggleModal("project-modal", false);
+      refreshAllData();
+    }
   } finally {
-    btn.innerText = "Save";
+    btn.innerText = "Save Project";
     btn.disabled = false;
   }
 };
@@ -398,57 +394,39 @@ document.getElementById("cert-form").onsubmit = async (e) => {
   const btn = document.getElementById("s-submit-btn");
   btn.innerText = "SAVING...";
   btn.disabled = true;
-
   const file = document.getElementById("s-file").files[0];
   let imageUrl = null;
 
   try {
     if (file) {
       const fileName = `certs/${Date.now()}-${file.name}`;
-      const { data: uploadData, error: uploadError } =
-        await supabaseClient.storage.from("projects").upload(fileName, file);
-
-      if (uploadError) {
-        throw new Error("Storage Error: " + uploadError.message);
+      const { error: uploadError } = await supabaseClient.storage
+        .from("projects")
+        .upload(fileName, file);
+      if (!uploadError) {
+        const {
+          data: { publicUrl },
+        } = supabaseClient.storage.from("projects").getPublicUrl(fileName);
+        imageUrl = publicUrl;
       }
-
-      const {
-        data: { publicUrl },
-      } = supabaseClient.storage.from("projects").getPublicUrl(fileName);
-      imageUrl = publicUrl;
     }
-
-    const payload = {
-      title: document.getElementById("s-title").value,
-      issuer: document.getElementById("s-issuer").value,
-      date: document.getElementById("s-date").value,
-      description: document.getElementById("s-description").value,
-    };
-
-    if (imageUrl) payload.image = imageUrl;
-
-    const { error: dbError } = await supabaseClient
-      .from("certificates")
-      .insert([payload]);
-
-    if (dbError) {
-      if (dbError.message.includes("image")) {
-        throw new Error(
-          "PENTING: Tambahkan kolom 'image' (tipe: text) ke tabel 'certificates' di dashboard Supabase kamu.",
-        );
-      }
-      throw new Error("Database Error: " + dbError.message);
+    const { error } = await supabaseClient.from("certificates").insert([
+      {
+        title: document.getElementById("s-title").value,
+        issuer: document.getElementById("s-issuer").value,
+        date: document.getElementById("s-date").value,
+        description: document.getElementById("s-description").value,
+        image: imageUrl,
+      },
+    ]);
+    if (!error) {
+      showNotification("Recognition Saved!");
+      e.target.reset();
+      toggleModal("cert-modal", false);
+      refreshAllData();
     }
-
-    showNotification("Sertifikat Berhasil Disimpan!");
-    e.target.reset();
-    toggleModal("cert-modal", false);
-    refreshAllData();
-  } catch (err) {
-    console.error("CERT_SAVE_ERROR:", err);
-    showNotification(err.message, true);
   } finally {
-    btn.innerText = "Save";
+    btn.innerText = "Save Award";
     btn.disabled = false;
   }
 };
@@ -464,12 +442,10 @@ document.getElementById("exp-form").onsubmit = async (e) => {
     },
   ]);
   if (!error) {
-    showNotification("Riwayat Berhasil Disimpan!");
+    showNotification("History Saved!");
     e.target.reset();
     toggleModal("exp-modal", false);
     refreshAllData();
-  } else {
-    showNotification("DB Error: " + error.message, true);
   }
 };
 
@@ -483,7 +459,7 @@ document.getElementById("contact-form").onsubmit = async (e) => {
     },
   ]);
   if (!error) {
-    showNotification("Pesan Terkirim!");
+    showNotification("Vision Sent Successfully!");
     e.target.reset();
   }
 };
@@ -496,6 +472,7 @@ window.toggleAdmin = (show) => {
   document.getElementById("user-view").style.display = show ? "none" : "block";
   document.getElementById("admin-view").classList.toggle("active", show);
   window.scrollTo(0, 0);
+  lucide.createIcons();
 };
 window.switchAdminTab = (tab) => {
   document
@@ -505,12 +482,16 @@ window.switchAdminTab = (tab) => {
     .querySelectorAll(".admin-tab-btn")
     .forEach((b) => b.classList.remove("active"));
   document.getElementById(`admin-tab-${tab}`).classList.remove("hidden");
-  document.getElementById(`btn-tab-${tab}`).classList.add("active");
+  const tabBtns = document.querySelectorAll(
+    `[onclick*="switchAdminTab('${tab}')"]`,
+  );
+  tabBtns.forEach((btn) => btn.classList.add("active"));
   lucide.createIcons();
 };
 window.toggleModal = (id, show) => {
-  document.getElementById(id).classList.toggle("hidden", !show);
-  document.getElementById(id).classList.toggle("flex", show);
+  const el = document.getElementById(id);
+  el.classList.toggle("hidden", !show);
+  el.classList.toggle("flex", show);
 };
 
 function showNotification(text, isError = false) {
@@ -530,7 +511,7 @@ function initReveal() {
         if (entry.isIntersecting) entry.target.classList.add("active");
       });
     },
-    { threshold: 0.1 },
+    { threshold: 0.05 },
   );
   document.querySelectorAll(".reveal").forEach((el) => obs.observe(el));
 }
