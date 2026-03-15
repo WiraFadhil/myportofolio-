@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="id" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wira Fadhil | Digital Alchemist & Supabase Expert</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body class="bg-soft-gradient">
+
+    <!-- Admin Login UI -->
+    <div id="admin-login-overlay" class="fixed inset-0 items-center justify-center p-6 bg-stone-900/40 backdrop-blur-md">
+        <div class="glass-card p-10 rounded-[3rem] w-full max-w-sm text-center space-y-6 border-none shadow-2xl">
+            <div class="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center text-white mx-auto shadow-lg animate-float">
+                <i data-lucide="shield-check" class="w-8 h-8"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-black text-stone-900">Admin Area</h2>
+                <p class="text-stone-400 text-sm">Gunakan kredensial untuk melanjutkan.</p>
+            </div>
+            <form id="login-form" class="space-y-3">
+                <input type="email" id="admin-email" placeholder="Email" required class="w-full bg-stone-50 border border-stone-200 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-orange-500/20 outline-none font-semibold text-sm transition-all" />
+                <input type="password" id="admin-pass" placeholder="Password" required class="w-full bg-stone-50 border border-stone-200 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-orange-500/20 outline-none font-semibold text-sm transition-all" />
+                <div class="flex gap-2 pt-2">
+                    <button type="submit" id="login-btn" class="flex-grow py-4 bg-orange-500 text-white font-black rounded-xl hover:bg-orange-600 transition-all text-sm shadow-lg shadow-orange-500/20">Login</button>
+                    <button type="button" onclick="closeAdminLogin()" class="px-6 py-4 bg-stone-100 text-stone-500 font-bold rounded-xl text-sm">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Interface -->
+    <div id="user-view">
+      <header id="main-header" class="fixed top-0 left-0 w-full z-[100] transition-all duration-500 py-8 px-6">
+        <div class="content-container flex justify-between items-center">
+          <div class="flex items-center gap-3 cursor-pointer group" onclick="window.scrollTo(0,0)">
+            <div class="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center text-white shadow-lg transition-transform group-hover:rotate-12">
+                <i data-lucide="zap" class="w-5 h-5"></i>
+            </div>
+            <span class="font-heading text-xl font-black tracking-tighter">Wira<span class="text-orange-500">.</span></span>
+          </div>
+
+          <nav class="hidden md:flex items-center gap-10">
+              <a href="#projects" class="nav-link text-xs font-black uppercase tracking-widest text-stone-500 hover:text-stone-900 transition-colors">Projects</a>
+              <a href="#experience" class="nav-link text-xs font-black uppercase tracking-widest text-stone-500 hover:text-stone-900 transition-colors">Journey</a>
+              <a href="#contact" class="nav-link text-xs font-black uppercase tracking-widest text-stone-500 hover:text-stone-900 transition-colors">Contact</a>
+          </nav>
+
+          <div class="flex items-center gap-4">
+              <button onclick="openAdminLogin()" class="p-2 text-stone-400 hover:text-orange-500 transition-all hover:scale-110">
+                  <i data-lucide="fingerprint" class="w-5 h-5"></i>
+              </button>
+              <a href="#contact" class="hidden sm:inline-block px-7 py-3 bg-stone-900 text-white text-[10px] font-black uppercase tracking-widest rounded-full hover:bg-orange-500 transition-all shadow-xl hover:shadow-orange-500/20">Hire Me</a>
+              <button class="md:hidden p-2 text-stone-900" id="mobile-menu-btn">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+              </button>
+          </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden absolute top-full left-0 w-full glass-nav p-10 flex flex-col gap-6 text-center shadow-2xl rounded-b-[2rem] border-t-0">
+            <a href="#projects" class="text-lg font-black text-stone-700 tracking-tight" onclick="toggleMobileMenu()">PROJECTS</a>
+            <a href="#experience" class="text-lg font-black text-stone-700 tracking-tight" onclick="toggleMobileMenu()">JOURNEY</a>
+            <a href="#contact" class="text-lg font-black text-stone-700 tracking-tight" onclick="toggleMobileMenu()">CONTACT</a>
+        </div>
+      </header>
+
+      <!-- Hero Section -->
+      <section id="home" class="min-h-screen flex items-center justify-center px-6 pt-24 pb-12">
+        <div class="content-container w-full grid lg:grid-cols-2 gap-16 items-center">
+          <div class="space-y-10 reveal">
+            <div class="inline-flex items-center gap-2 px-4 py-2 bg-orange-50 text-orange-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-orange-100/30">
+                <span class="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></span>
+                Available for new vision
+            </div>
+            <h1 class="text-5xl md:text-7xl xl:text-8xl font-black leading-[1.05] tracking-tighter text-stone-900">
+                Crafting <br/><span class="text-orange-500">Experiences</span> <br/>through Data.
+            </h1>
+            <p class="text-lg md:text-xl text-stone-500 max-w-lg leading-relaxed font-medium">
+                Membangun ekosistem digital yang skalabel dengan arsitektur modern Supabase dan desain yang fokus pada pengguna.
+            </p>
+            <div class="flex flex-wrap gap-5">
+              <a href="#projects" class="px-10 py-5 bg-stone-900 text-white rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-2xl hover:bg-orange-600 transition-all active:scale-95 flex items-center gap-2">
+                Explore Works <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+              </a>
+              <button onclick="showNotification('Fetching latest resume...')" class="px-10 py-5 glass-card rounded-[2rem] font-black text-stone-800 text-xs uppercase tracking-widest hover:bg-white transition-all shadow-sm">
+                Get Resume
+              </button>
+            </div>
+          </div>
+          <div class="hidden lg:block reveal" style="transition-delay: 200ms;">
+            <div class="relative animate-float">
+                <div class="relative z-10 glass-card rounded-[4rem] p-4 aspect-[4/5] overflow-hidden shadow-2xl border-white/40">
+                    <img src="fotosaya.png" class="w-full h-full object-cover rounded-[3.5rem]" alt="Profile Image" />
+                </div>
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-orange-400/20 blur-[80px] rounded-full"></div>
+                <div class="absolute -bottom-10 -left-10 w-48 h-48 bg-blue-400/20 blur-[80px] rounded-full"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Projects Section -->
+      <section id="projects" class="py-32 bg-white/40">
+        <div class="content-container space-y-20">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 reveal">
+                <div class="space-y-4">
+                    <h2 class="text-orange-500 font-black tracking-[0.4em] uppercase text-[10px]">Case Studies</h2>
+                    <h3 class="text-4xl md:text-6xl font-black text-stone-900 tracking-tighter">Featured Projects.</h3>
+                </div>
+                <div class="h-[2px] flex-grow bg-stone-100 mx-10 hidden xl:block"></div>
+                <p class="text-stone-400 text-sm font-medium max-w-[280px] italic leading-relaxed">Pilihan proyek terbaik yang dibangun dengan ketelitian desain dan performa tinggi.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10" id="projects-list"></div>
+        </div>
+      </section>
+
+      <!-- Journey & Awards Section -->
+      <section id="experience" class="py-32">
+        <div class="content-container grid lg:grid-cols-2 gap-16 items-start">
+            <!-- Experience -->
+            <div class="flex flex-col w-full">
+                <div class="reveal mb-12 h-32 flex flex-col justify-end">
+                    <h2 class="text-blue-500 font-black tracking-[0.4em] uppercase text-[10px] mb-4">Professional Timeline</h2>
+                    <h3 class="text-4xl font-black text-stone-900 tracking-tight">Professional Journey.</h3>
+                </div>
+                <div class="space-y-6" id="experience-list"></div>
+            </div>
+            <!-- Awards -->
+            <div class="flex flex-col w-full">
+                <div class="reveal mb-12 h-32 flex flex-col justify-end">
+                    <h2 class="text-emerald-600 font-black tracking-[0.4em] uppercase text-[10px] mb-4">Recognition</h2>
+                    <h3 class="text-4xl font-black text-stone-900 tracking-tight">Certifications & Awards.</h3>
+                </div>
+                <div class="space-y-6" id="certificates-list"></div>
+            </div>
+        </div>
+      </section>
+
+      <!-- Contact Section -->
+      <section id="contact" class="py-32 px-6">
+        <div class="content-container">
+            <div class="glass-card rounded-[4rem] p-12 md:p-20 shadow-2xl relative overflow-hidden reveal border-none">
+                <div class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[35rem] h-[35rem] bg-orange-100 rounded-full blur-[100px] opacity-40"></div>
+                <div class="grid lg:grid-cols-5 gap-16 items-center relative z-10">
+                    <div class="lg:col-span-2 space-y-8">
+                        <h2 class="text-5xl font-black text-stone-900 tracking-tighter leading-[1.1]">Mari buat <br/>sesuatu yang <br/><span class="text-orange-500">luar biasa.</span></h2>
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 glass-card rounded-2xl flex items-center justify-center text-orange-500 hover:bg-orange-500 hover:text-white transition-all cursor-pointer"><i data-lucide="mail" class="w-5 h-5"></i></div>
+                            <div class="w-12 h-12 glass-card rounded-2xl flex items-center justify-center text-blue-500 hover:bg-blue-500 hover:text-white transition-all cursor-pointer"><i data-lucide="github" class="w-5 h-5"></i></div>
+                        </div>
+                    </div>
+                    <form id="contact-form" class="lg:col-span-3 space-y-4">
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <input type="text" id="c-name" placeholder="Nama Lengkap" required class="w-full bg-white/80 border border-stone-100 rounded-2xl px-6 py-4 outline-none focus:ring-4 focus:ring-orange-500/10 transition-all font-bold text-sm" />
+                            <input type="email" id="c-email" placeholder="Email Address" required class="w-full bg-white/80 border border-stone-100 rounded-2xl px-6 py-4 outline-none focus:ring-4 focus:ring-orange-500/10 transition-all font-bold text-sm" />
+                        </div>
+                        <textarea id="c-message" placeholder="Jelaskan kebutuhan Anda..." rows="5" required class="w-full bg-white/80 border border-stone-100 rounded-[2rem] px-6 py-5 outline-none focus:ring-4 focus:ring-orange-500/10 transition-all font-bold text-sm resize-none"></textarea>
+                        <button type="submit" class="w-full py-5 bg-stone-900 text-white font-black rounded-2xl shadow-xl hover:bg-orange-600 active:scale-95 transition-all text-xs uppercase tracking-widest">Kirim Sekarang</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+      </section>
+
+      <footer class="py-20 text-center border-t border-stone-100/50">
+          <div class="font-heading text-4xl font-black mb-6 tracking-tighter">Wira<span class="text-orange-500">.</span></div>
+          <p class="text-stone-300 font-bold text-[9px] tracking-[0.6em] uppercase">&copy; 2024 Wira Fadhil • Kreativitas Tanpa Batas</p>
+      </footer>
+    </div>
+
+    <!-- Admin Panel Interface -->
+    <div id="admin-view" class="min-h-screen bg-stone-50">
+        <aside class="w-72 glass-card m-6 rounded-[2.5rem] hidden lg:flex flex-col p-8 border-none fixed h-[calc(100vh-3rem)] shadow-2xl z-[50]">
+            <div class="flex items-center gap-2 mb-12">
+                <div class="w-8 h-8 bg-orange-500 rounded-xl flex items-center justify-center text-white shadow-md"><i data-lucide="shield-check" class="w-4 h-4"></i></div>
+                <span class="font-heading text-lg font-black tracking-tight">Wira<span class="text-orange-500 text-sm">Control</span></span>
+            </div>
+            <nav class="space-y-2 flex-grow">
+                <button onclick="switchAdminTab('projects')" id="btn-tab-projects" class="admin-tab-btn w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest text-stone-400 hover:bg-stone-100 active"><i data-lucide="layers" class="w-4 h-4"></i> Projects</button>
+                <button onclick="switchAdminTab('experience')" id="btn-tab-experience" class="admin-tab-btn w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest text-stone-400 hover:bg-stone-100"><i data-lucide="history" class="w-4 h-4"></i> Journey</button>
+                <button onclick="switchAdminTab('certificates')" id="btn-tab-certificates" class="admin-tab-btn w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest text-stone-400 hover:bg-stone-100"><i data-lucide="award" class="w-4 h-4"></i> Awards</button>
+                <button onclick="switchAdminTab('messages')" id="btn-tab-messages" class="admin-tab-btn w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest text-stone-400 hover:bg-stone-100"><i data-lucide="mail" class="w-4 h-4"></i> Inbox</button>
+            </nav>
+            <div class="pt-8 border-t border-stone-100 space-y-3">
+                <button onclick="toggleAdmin(false)" class="w-full flex items-center gap-3 px-5 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest text-stone-400 hover:bg-white"><i data-lucide="monitor" class="w-4 h-4"></i> Website</button>
+                <button onclick="handleLogout()" class="w-full flex items-center gap-3 px-5 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest text-rose-500 hover:bg-rose-50 transition-all"><i data-lucide="log-out" class="w-4 h-4"></i> Logout</button>
+            </div>
+        </aside>
+
+        <main class="lg:ml-72 flex-grow p-12 overflow-y-auto min-h-screen">
+            <div id="admin-tab-projects" class="admin-tab-content space-y-10">
+                <div class="flex justify-between items-center"><h2 class="text-4xl font-black text-stone-900 tracking-tight">Project Management</h2><button onclick="toggleModal('project-modal', true)" class="px-7 py-4 bg-orange-500 text-white font-black rounded-2xl text-[10px] uppercase tracking-widest shadow-xl">Create Project</button></div>
+                <div id="admin-projects-grid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-8"></div>
+            </div>
+            <div id="admin-tab-experience" class="admin-tab-content hidden space-y-10">
+                <div class="flex justify-between items-center"><h2 class="text-4xl font-black text-stone-900 tracking-tight">Professional History</h2><button onclick="toggleModal('exp-modal', true)" class="px-7 py-4 bg-stone-900 text-white font-black rounded-2xl text-[10px] uppercase tracking-widest">Add History</button></div>
+                <div id="admin-experience-list" class="space-y-4 max-w-4xl"></div>
+            </div>
+            <div id="admin-tab-certificates" class="admin-tab-content hidden space-y-10">
+                <div class="flex justify-between items-center"><h2 class="text-4xl font-black text-stone-900 tracking-tight">Awards & Certs</h2><button onclick="toggleModal('cert-modal', true)" class="px-7 py-4 bg-emerald-600 text-white font-black rounded-2xl text-[10px] uppercase tracking-widest">Add Award</button></div>
+                <div id="admin-certificates-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+            <div id="admin-tab-messages" class="admin-tab-content hidden space-y-10"><h2 class="text-4xl font-black text-stone-900 tracking-tight">Inbox Messages</h2><div id="admin-messages-list" class="grid md:grid-cols-2 gap-6"></div></div>
+        </main>
+    </div>
+
+    <!-- Modal Project (Updated for File Upload) -->
+    <div id="project-modal" class="fixed inset-0 bg-stone-900/40 backdrop-blur-sm items-center justify-center p-6 hidden z-[2000]">
+        <div class="glass-card p-12 rounded-[3.5rem] w-full max-w-lg border-none shadow-2xl overflow-y-auto max-h-[90vh]">
+            <h3 class="text-3xl font-black mb-8">Add New Project</h3>
+            <form id="project-form" class="space-y-4">
+                <input type="text" id="p-title" placeholder="Project Title" required class="bg-stone-50 border border-stone-200 p-5 rounded-2xl font-bold w-full text-sm outline-none" />
+                <input type="text" id="p-tech" placeholder="Stacks (e.g React, Tailwind, Supabase)" required class="bg-stone-50 border border-stone-200 p-5 rounded-2xl font-bold w-full text-sm outline-none" />
+                
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase text-stone-400 pl-2">Project Thumbnail</label>
+                    <input type="file" id="p-file" accept="image/*" class="w-full text-xs font-bold text-stone-500 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-orange-50 file:text-orange-600 hover:file:bg-orange-100 transition-all cursor-pointer bg-white p-2 border border-stone-100 rounded-2xl" />
+                </div>
+                
+                <input type="url" id="p-link" placeholder="Project Live URL (Link Website/Demo)" required class="bg-stone-50 border border-stone-200 p-5 rounded-2xl font-bold w-full text-sm outline-none" />
+                <textarea id="p-desc" placeholder="Ceritakan tentang proyek ini..." required rows="4" class="bg-stone-50 border border-stone-200 p-5 rounded-2xl font-bold w-full text-sm outline-none resize-none"></textarea>
+                
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" id="p-submit-btn" class="flex-grow py-5 bg-orange-500 text-white font-black rounded-2xl text-xs">Save Project</button>
+                    <button type="button" onclick="toggleModal('project-modal', false)" class="px-10 py-5 bg-stone-100 font-bold rounded-2xl text-stone-400 text-xs">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modals (Experience & Certs) -->
+    <div id="exp-modal" class="fixed inset-0 bg-stone-900/40 backdrop-blur-sm items-center justify-center p-6 hidden z-[2000]">
+        <div class="glass-card p-12 rounded-[3.5rem] w-full max-w-lg border-none">
+            <h3 class="text-3xl font-black mb-8">Add History</h3>
+            <form id="exp-form" class="space-y-4">
+                <input type="text" id="e-title" placeholder="Position" required class="bg-stone-50 p-5 rounded-2xl w-full text-sm font-bold border-stone-200" />
+                <input type="text" id="e-company" placeholder="Company" required class="bg-stone-50 p-5 rounded-2xl w-full text-sm font-bold border-stone-200" />
+                <input type="text" id="e-period" placeholder="Period" required class="bg-stone-50 p-5 rounded-2xl w-full text-sm font-bold border-stone-200" />
+                <textarea id="e-description" placeholder="Details..." required rows="3" class="bg-stone-50 p-5 rounded-2xl w-full text-sm font-bold resize-none border-stone-200"></textarea>
+                <div class="flex gap-2 pt-2"><button type="submit" class="flex-grow py-5 bg-stone-900 text-white font-black rounded-2xl text-xs">Save</button><button type="button" onclick="toggleModal('exp-modal', false)" class="px-8 bg-stone-100 rounded-2xl text-xs font-bold text-stone-400">Cancel</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="cert-modal" class="fixed inset-0 bg-stone-900/40 backdrop-blur-sm items-center justify-center p-6 hidden z-[2000]">
+        <div class="glass-card p-12 rounded-[3.5rem] w-full max-w-lg border-none">
+            <h3 class="text-3xl font-black mb-8">Add Recognition</h3>
+            <form id="cert-form" class="space-y-4">
+                <input type="text" id="s-title" placeholder="Award Title" required class="bg-stone-50 p-5 rounded-2xl w-full text-sm font-bold border-stone-200" />
+                <input type="text" id="s-issuer" placeholder="Issuer" required class="bg-stone-50 p-5 rounded-2xl w-full text-sm font-bold border-stone-200" />
+                <input type="text" id="s-date" placeholder="Year" required class="bg-stone-50 p-5 rounded-2xl w-full text-sm font-bold border-stone-200" />
+                <textarea id="s-description" placeholder="Details..." required rows="3" class="bg-stone-50 p-5 rounded-2xl w-full text-sm font-bold resize-none border-stone-200"></textarea>
+                <div class="flex gap-2 pt-2"><button type="submit" class="flex-grow py-5 bg-emerald-600 text-white font-black rounded-2xl text-xs">Save</button><button type="button" onclick="toggleModal('cert-modal', false)" class="px-8 bg-stone-100 rounded-2xl text-xs font-bold text-stone-400">Cancel</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="notif-bar" class="fixed bottom-10 right-10 translate-x-[200%] transition-transform duration-500 z-[3000]">
+        <div class="glass-card bg-stone-900 text-white px-10 py-5 rounded-[2.5rem] font-bold shadow-2xl flex items-center gap-4 border-none text-xs uppercase tracking-widest">
+            <div id="notif-icon" class="text-orange-500"><i data-lucide="check-circle"></i></div>
+            <span id="notif-msg">Saved!</span>
+        </div>
+    </div>
+
+
+    <script src="main.js"></script>
+  </body>
+</html>
