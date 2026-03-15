@@ -74,13 +74,6 @@ h4,
   border-color: rgba(249, 115, 22, 0.3);
 }
 
-.img-container {
-  position: relative;
-  overflow: hidden;
-  aspect-ratio: 16 / 10;
-  border-radius: 1.5rem;
-}
-
 @keyframes float {
   0%,
   100% {
@@ -129,4 +122,63 @@ h4,
   background: #f97316;
   color: white;
   box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+}
+
+/* Timeline specific styles */
+.timeline-line {
+  position: absolute;
+  left: 28px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, #e5e7eb 0%, #e5e7eb 100%);
+  z-index: 0;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d1d5db;
+}
+
+/* Folder Style */
+.folder-stack {
+  position: relative;
+}
+.folder-stack::before,
+.folder-stack::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 2.5rem;
+  z-index: -1;
+  transition: all 0.3s ease;
+}
+.folder-stack::before {
+  transform: translate(6px, -6px);
+  opacity: 0.6;
+}
+.folder-stack::after {
+  transform: translate(12px, -12px);
+  opacity: 0.3;
+}
+.folder-stack:hover::before {
+  transform: translate(10px, -10px);
+}
+.folder-stack:hover::after {
+  transform: translate(20px, -20px);
 }

@@ -3,6 +3,8 @@ const SUPABASE_KEY = "sb_publishable_kLQhHsdVoONTb_AZ1Ep_Uw_0o3Si5Yx";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let isAdmin = false;
+let allCertificates = [];
+let currentCertFilter = null;
 
 window.onscroll = () => {
   const header = document.getElementById("main-header");
@@ -32,12 +34,12 @@ loginForm.onsubmit = async (e) => {
   });
   if (error) {
     showNotification("Access Denied: " + error.message, true);
-    btn.innerText = "RETRY LOGIN";
+    btn.innerText = "RETRY";
   } else {
     isAdmin = true;
     closeAdminLogin();
     toggleAdmin(true);
-    showNotification("Supabase Connected, Welcome Wira!");
+    showNotification("Welcome back, Wira!");
     refreshAllData();
   }
 };
@@ -48,6 +50,7 @@ async function handleLogout() {
   toggleAdmin(false);
   showNotification("Signed out.");
 }
+
 async function refreshAllData() {
   fetchProjects();
   fetchExperience();
@@ -74,7 +77,8 @@ async function fetchCertificates() {
     .from("certificates")
     .select("*")
     .order("created_at", { ascending: false });
-  renderCertificates(data || []);
+  allCertificates = data || [];
+  renderCertificates(allCertificates);
 }
 async function fetchMessages() {
   const { data } = await supabaseClient
@@ -90,7 +94,7 @@ function renderProjects(data) {
   if (userGrid)
     userGrid.innerHTML = data.length
       ? ""
-      : `<p class="col-span-full text-center text-stone-300 py-20 font-bold text-lg">No visions deployed yet.</p>`;
+      : `<p class="col-span-full text-center text-stone-300 py-20 font-bold">No visions deployed yet.</p>`;
   if (adminGrid) adminGrid.innerHTML = "";
 
   data.forEach((p, index) => {
@@ -99,45 +103,34 @@ function renderProjects(data) {
       card.className =
         "reveal card-hover glass-card rounded-[2.5rem] overflow-hidden group border border-stone-100 shadow-sm mb-4";
       card.style.transitionDelay = `${index * 100}ms`;
-
-      const linkAttr = p.link
-        ? `href="${p.link}" target="_blank" rel="noopener noreferrer"`
-        : 'href="javascript:void(0)"';
-
       card.innerHTML = `
-                    <div class="flex flex-col h-full">
-                        <a ${linkAttr} class="img-container block group-hover:opacity-90 transition-opacity">
-                            <img src="${p.image}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" onerror="this.src='https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop'" />
-                            <div class="absolute inset-0 bg-stone-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <span class="bg-white text-stone-900 px-6 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest translate-y-4 group-hover:translate-y-0 transition-transform">View Demo</span>
-                            </div>
-                        </a>
-                        <div class="p-9 flex-grow flex flex-col gap-5">
-                            <div class="flex flex-wrap gap-2.5">
-                                ${
-                                  p.tech
-                                    ? p.tech
-                                        .split(",")
-                                        .map(
-                                          (t) =>
-                                            `<span class="px-3 py-1 bg-stone-50 text-stone-500 text-[9px] font-black uppercase rounded-lg tracking-[0.2em] border border-stone-100">${t.trim()}</span>`,
-                                        )
-                                        .join("")
-                                    : ""
-                                }
-                            </div>
-                            <div class="space-y-3 flex-grow">
-                                <a ${linkAttr} class="block">
-                                    <h4 class="text-2xl font-black text-stone-900 tracking-tight leading-tight group-hover:text-orange-500 transition-colors">${p.title}</h4>
-                                </a>
-                                <p class="text-stone-400 text-sm leading-relaxed font-medium line-clamp-3">${p.description || ""}</p>
-                            </div>
-                            <a ${linkAttr} class="flex items-center gap-2 text-stone-900 font-black text-[10px] uppercase tracking-widest group/link mt-2">
-                                Launch Project 
-                                <i data-lucide="arrow-right" class="w-3.5 h-3.5 transition-transform group-hover/link:translate-x-1"></i>
-                            </a>
-                        </div>
-                    </div>`;
+        <div class="flex flex-col h-full">
+            <a href="${p.link}" target="_blank" class="img-container block overflow-hidden">
+                <img src="${p.image}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" onerror="this.src='https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop'" />
+            </a>
+            <div class="p-9 flex-grow flex flex-col gap-5">
+                <div class="flex flex-wrap gap-2.5">
+                    ${
+                      p.tech
+                        ? p.tech
+                            .split(",")
+                            .map(
+                              (t) =>
+                                `<span class="px-3 py-1 bg-stone-50 text-stone-500 text-[9px] font-black uppercase rounded-lg tracking-[0.2em] border border-stone-100">${t.trim()}</span>`,
+                            )
+                            .join("")
+                        : ""
+                    }
+                </div>
+                <div class="space-y-3">
+                    <h4 class="text-2xl font-black text-stone-900 tracking-tight leading-tight">${p.title}</h4>
+                    <p class="text-stone-400 text-sm font-medium line-clamp-3">${p.description}</p>
+                </div>
+                <a href="${p.link}" target="_blank" class="flex items-center gap-2 text-stone-900 font-black text-[10px] uppercase tracking-widest group/link mt-auto pt-4">
+                    Launch Project <i data-lucide="arrow-right" class="w-3.5 h-3.5 transition-transform group-hover/link:translate-x-1"></i>
+                </a>
+            </div>
+        </div>`;
       userGrid.appendChild(card);
     }
     if (adminGrid) {
@@ -145,16 +138,11 @@ function renderProjects(data) {
       aCard.className =
         "glass-card p-5 rounded-2xl flex justify-between items-center border border-stone-100 shadow-sm mb-4";
       aCard.innerHTML = `
-                    <div class="flex items-center gap-4">
-                        <img src="${p.image}" class="w-12 h-12 rounded-xl object-cover" />
-                        <div>
-                            <h5 class="font-black text-[11px] text-stone-800 uppercase tracking-tight line-clamp-1">${p.title}</h5>
-                            ${p.link ? `<span class="text-[9px] text-blue-500 font-bold underline truncate block max-w-[120px]">${p.link}</span>` : '<span class="text-[9px] text-stone-300 font-bold">No link</span>'}
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="window.deleteData('projects', '${p.id}')" class="p-2.5 text-rose-400 hover:bg-rose-50 rounded-xl transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                    </div>`;
+        <div class="flex items-center gap-4">
+            <img src="${p.image}" class="w-12 h-12 rounded-xl object-cover" />
+            <h5 class="font-black text-[11px] text-stone-800 uppercase line-clamp-1">${p.title}</h5>
+        </div>
+        <button onclick="window.deleteData('projects', '${p.id}')" class="p-2.5 text-rose-400 hover:bg-rose-50 rounded-xl transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
       adminGrid.appendChild(aCard);
     }
   });
@@ -175,16 +163,28 @@ function renderExperience(data) {
     if (userList) {
       const card = document.createElement("div");
       card.className =
-        "reveal glass-card p-8 rounded-[2.5rem] border border-stone-100 flex flex-col gap-4 card-hover mb-4";
+        "reveal glass-card p-7 rounded-[2rem] border border-stone-100 flex flex-col gap-4 card-hover mb-4 relative z-10 ml-8";
       card.style.transitionDelay = `${index * 150}ms`;
-      card.innerHTML = `<div class="flex items-start gap-6"><div class="shrink-0 w-14 h-14 bg-white border border-stone-100 rounded-2xl flex items-center justify-center text-blue-500 shadow-lg shadow-blue-500/5"><i data-lucide="milestone" class="w-6 h-6"></i></div><div class="space-y-2 flex-grow"><div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"><h4 class="text-2xl font-black text-stone-900 tracking-tight leading-none">${exp.title}</h4><span class="text-[10px] font-black text-blue-500 uppercase tracking-widest bg-blue-50 px-4 py-1.5 rounded-full border border-blue-100 inline-block w-fit">${exp.period}</span></div><p class="text-stone-400 font-black text-xs uppercase tracking-widest leading-none">${exp.company}</p></div></div><p class="text-stone-500 text-base leading-relaxed font-medium pl-2">${exp.description || "No description"}</p>`;
+      card.innerHTML = `
+        <div class="absolute -left-[44px] top-8 w-6 h-6 bg-white border-4 border-blue-500 rounded-full shadow-lg z-20"></div>
+        <div class="flex items-start gap-6">
+            <div class="shrink-0 w-12 h-12 bg-white border border-stone-100 rounded-xl flex items-center justify-center text-blue-500 shadow-sm"><i data-lucide="milestone" class="w-5 h-5"></i></div>
+            <div class="space-y-1 flex-grow">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <h4 class="text-xl font-black text-stone-900 tracking-tight leading-none">${exp.title}</h4>
+                    <span class="text-[9px] font-black text-blue-500 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full border border-blue-100 w-fit">${exp.period}</span>
+                </div>
+                <p class="text-stone-400 font-black text-[10px] uppercase tracking-widest leading-none">${exp.company}</p>
+            </div>
+        </div>
+        <p class="text-stone-500 text-sm leading-relaxed font-medium pl-1 opacity-80">${exp.description}</p>`;
       userList.appendChild(card);
     }
     if (adminList) {
       const aItem = document.createElement("div");
       aItem.className =
         "glass-card p-5 rounded-2xl flex justify-between items-center bg-white shadow-sm mb-4";
-      aItem.innerHTML = `<div class="text-xs font-black text-stone-900 uppercase tracking-tight">${exp.title} <span class="text-stone-300 mx-2">|</span> ${exp.company}</div><button onclick="window.deleteData('experience', '${exp.id}')" class="p-2.5 text-rose-400 hover:bg-rose-50 rounded-xl transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+      aItem.innerHTML = `<div class="text-xs font-black text-stone-900 uppercase tracking-tight">${exp.title} | ${exp.company}</div><button onclick="window.deleteData('experience', '${exp.id}')" class="p-2.5 text-rose-400 hover:bg-rose-50 rounded-xl transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
       adminList.appendChild(aItem);
     }
   });
@@ -195,31 +195,123 @@ function renderExperience(data) {
 function renderCertificates(data) {
   const userList = document.getElementById("certificates-list");
   const adminList = document.getElementById("admin-certificates-list");
-  if (userList)
-    userList.innerHTML = data.length
-      ? ""
-      : `<p class="text-stone-300 font-bold italic py-10">Recognition pending.</p>`;
-  if (adminList) adminList.innerHTML = "";
+  const filterInfo = document.getElementById("certs-filter-info");
 
-  data.forEach((s, index) => {
-    if (userList) {
-      const card = document.createElement("div");
-      card.className =
-        "reveal glass-card p-8 rounded-[2.5rem] border border-stone-100 flex flex-col gap-4 card-hover mb-4";
-      card.style.transitionDelay = `${index * 100}ms`;
-      card.innerHTML = `<div class="flex items-start gap-6"><div class="shrink-0 w-14 h-14 bg-white border border-stone-100 rounded-2xl flex items-center justify-center text-emerald-600 shadow-lg shadow-emerald-500/5"><i data-lucide="award" class="w-6 h-6"></i></div><div class="space-y-2 flex-grow"><div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"><h4 class="text-2xl font-black text-stone-900 tracking-tight leading-none">${s.title}</h4><span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 px-4 py-1.5 rounded-full border border-emerald-100 inline-block w-fit">${s.date}</span></div><p class="text-stone-400 font-black text-xs uppercase tracking-widest leading-none">${s.issuer}</p></div></div><p class="text-stone-500 text-base leading-relaxed font-medium pl-2">${s.description || "No description"}</p>`;
-      userList.appendChild(card);
+  if (userList) {
+    userList.innerHTML = "";
+
+    if (currentCertFilter) {
+      filterInfo.classList.remove("hidden");
+      document.getElementById("active-issuer").innerText = currentCertFilter;
+
+      const filtered = allCertificates.filter(
+        (c) => c.issuer === currentCertFilter,
+      );
+
+      filtered.forEach((s, index) => {
+        const card = document.createElement("div");
+        card.className =
+          "reveal glass-card p-8 rounded-[2.5rem] border border-stone-100 flex flex-col gap-6 card-hover mb-4 relative overflow-hidden group";
+        card.style.transitionDelay = `${index * 100}ms`;
+
+        const isPdf = s.image && s.image.toLowerCase().endsWith(".pdf");
+
+        card.innerHTML = `
+                <div class="flex items-start gap-6">
+                    <div class="shrink-0 w-16 h-16 bg-white border border-stone-100 rounded-2xl flex items-center justify-center ${isPdf ? "text-rose-500" : "text-emerald-600"} shadow-lg transition-transform group-hover:scale-110">
+                        <i data-lucide="${isPdf ? "file-text" : "award"}" class="w-8 h-8"></i>
+                    </div>
+                    <div class="space-y-2 flex-grow">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <h4 class="text-2xl font-black text-stone-900 tracking-tight leading-none group-hover:text-emerald-600 transition-colors">${s.title}</h4>
+                            <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 px-4 py-1.5 rounded-full border border-emerald-100 inline-block w-fit">${s.date}</span>
+                        </div>
+                        <p class="text-stone-400 font-bold text-xs uppercase tracking-widest leading-none">${isPdf ? "PDF DOCUMENT" : "CERTIFICATE IMAGE"}</p>
+                    </div>
+                </div>
+                <p class="text-stone-500 text-base leading-relaxed font-medium px-2">${s.description || "Tidak ada deskripsi tambahan."}</p>
+                
+                <div class="flex gap-4 px-2">
+                    ${
+                      s.image
+                        ? `
+                        <a href="${s.image}" target="_blank" class="flex-grow flex items-center justify-center gap-3 py-4 bg-stone-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-xl active:scale-95">
+                            <i data-lucide="external-link" class="w-4 h-4"></i> Lihat Dokumen Asli
+                        </a>
+                    `
+                        : `
+                        <div class="flex-grow py-4 bg-stone-100 text-stone-400 rounded-2xl font-black text-[10px] uppercase tracking-widest text-center">
+                            File Tidak Tersedia
+                        </div>
+                    `
+                    }
+                </div>
+              `;
+        userList.appendChild(card);
+      });
+    } else {
+      filterInfo.classList.add("hidden");
+      const issuers = [...new Set(allCertificates.map((c) => c.issuer))];
+
+      if (issuers.length === 0) {
+        userList.innerHTML = `<p class="text-stone-300 font-bold italic py-10">Belum ada pengakuan yang terdaftar.</p>`;
+      }
+
+      issuers.forEach((issuer, index) => {
+        const issuerCerts = allCertificates.filter((c) => c.issuer === issuer);
+        const card = document.createElement("div");
+        card.className =
+          "reveal folder-stack glass-card p-10 rounded-[2.5rem] border border-stone-100 flex items-center justify-between card-hover mb-8 cursor-pointer group";
+        card.style.transitionDelay = `${index * 100}ms`;
+        card.onclick = () => filterByIssuer(issuer);
+
+        card.innerHTML = `
+                <div class="flex items-center gap-8">
+                    <div class="w-20 h-20 bg-stone-900 rounded-[2rem] flex items-center justify-center text-white shadow-2xl transition-transform group-hover:rotate-6">
+                        <i data-lucide="folder" class="w-10 h-10 text-orange-500"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-3xl font-black text-stone-900 tracking-tight mb-2">${issuer}</h4>
+                        <div class="flex items-center gap-2">
+                             <span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase rounded-lg border border-emerald-100">
+                                ${issuerCerts.length} Dokumen Tersedia
+                             </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-12 h-12 rounded-full border border-stone-100 flex items-center justify-center text-stone-400 group-hover:bg-orange-500 group-hover:text-white transition-all shadow-sm">
+                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                </div>
+              `;
+        userList.appendChild(card);
+      });
     }
-    if (adminList) {
+  }
+
+  if (adminList) {
+    adminList.innerHTML = "";
+    allCertificates.forEach((s) => {
       const aCard = document.createElement("div");
       aCard.className =
         "glass-card p-5 rounded-2xl flex justify-between items-center bg-white shadow-sm mb-4";
-      aCard.innerHTML = `<div class="text-[11px] font-black uppercase text-stone-900">${s.title.substring(0, 30)}...</div><button onclick="window.deleteData('certificates', '${s.id}')" class="p-2.5 text-rose-400 hover:bg-rose-50 rounded-xl transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+      aCard.innerHTML = `<div class="text-[11px] font-black uppercase text-stone-900">${s.title.substring(0, 30)}... <span class="text-stone-300">@ ${s.issuer}</span></div><button onclick="window.deleteData('certificates', '${s.id}')" class="p-2.5 text-rose-400 hover:bg-rose-50 rounded-xl transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
       adminList.appendChild(aCard);
-    }
-  });
+    });
+  }
+
   lucide.createIcons();
   initReveal();
+}
+
+function filterByIssuer(issuer) {
+  currentCertFilter = issuer;
+  renderCertificates(allCertificates);
+  document.getElementById("experience").scrollIntoView({ behavior: "smooth" });
+}
+
+function clearCertFilter() {
+  currentCertFilter = null;
+  renderCertificates(allCertificates);
 }
 
 function renderMessagesAdmin(data) {
@@ -232,7 +324,12 @@ function renderMessagesAdmin(data) {
       const item = document.createElement("div");
       item.className =
         "glass-card p-8 rounded-[2.5rem] border-l-[10px] border-orange-500 space-y-4 mb-4";
-      item.innerHTML = `<div class="flex justify-between items-start"><div><h5 class="font-black text-stone-900 text-lg">${m.name}</h5><p class="text-xs text-stone-400 font-bold">${m.email}</p></div><button onclick="window.deleteData('messages', '${m.id}')" class="text-rose-400 p-2.5 hover:bg-rose-50 rounded-xl transition-all"><i data-lucide="trash-2" class="w-5 h-5"></i></button></div><p class="bg-white/50 p-6 rounded-2xl text-stone-600 font-medium italic text-sm">"${m.message}"</p>`;
+      item.innerHTML = `
+        <div class="flex justify-between items-start">
+            <div><h5 class="font-black text-stone-900 text-lg">${m.name}</h5><p class="text-xs text-stone-400 font-bold">${m.email}</p></div>
+            <button onclick="window.deleteData('messages', '${m.id}')" class="text-rose-400 p-2.5 rounded-xl"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+        </div>
+        <p class="bg-white/50 p-6 rounded-2xl text-stone-600 font-medium italic text-sm">"${m.message}"</p>`;
       list.appendChild(item);
     });
   }
@@ -240,47 +337,35 @@ function renderMessagesAdmin(data) {
 }
 
 window.deleteData = async (table, id) => {
-  if (!confirm("Hapus data ini selamanya dari " + table + "?")) return;
-  try {
-    const { error } = await supabaseClient.from(table).delete().eq("id", id);
-    if (error) throw error;
-    showNotification("Data Removed!");
+  if (!confirm("Hapus data selamanya?")) return;
+  const { error } = await supabaseClient.from(table).delete().eq("id", id);
+  if (!error) {
+    showNotification("Data Berhasil Dihapus!");
     refreshAllData();
-  } catch (err) {
-    console.error("Delete Fail:", err);
-    showNotification("Error: " + err.message, true);
+  } else {
+    showNotification("Gagal Menghapus: " + error.message, true);
   }
 };
 
-// NEW: Upload Logic for Projects
 document.getElementById("project-form").onsubmit = async (e) => {
   e.preventDefault();
-  const submitBtn = document.getElementById("p-submit-btn");
-  submitBtn.innerText = "UPLOADING...";
-  submitBtn.disabled = true;
-
-  const fileInput = document.getElementById("p-file");
-  const file = fileInput.files[0];
+  const btn = document.getElementById("p-submit-btn");
+  btn.innerText = "UPLOADING...";
+  btn.disabled = true;
+  const file = document.getElementById("p-file").files[0];
   let imageUrl =
-    "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop"; // Default
+    "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop";
 
   try {
     if (file) {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `${fileName}`;
-
+      const fileName = `projects/${Date.now()}-${file.name}`;
       const { error: uploadError } = await supabaseClient.storage
         .from("projects")
-        .upload(filePath, file);
-
+        .upload(fileName, file);
       if (uploadError) throw uploadError;
-
-      // Get Public URL
       const {
         data: { publicUrl },
-      } = supabaseClient.storage.from("projects").getPublicUrl(filePath);
-
+      } = supabaseClient.storage.from("projects").getPublicUrl(fileName);
       imageUrl = publicUrl;
     }
 
@@ -293,73 +378,112 @@ document.getElementById("project-form").onsubmit = async (e) => {
         description: document.getElementById("p-desc").value,
       },
     ]);
-
     if (error) throw error;
 
-    showNotification("Vision Deployed Successfully!");
+    showNotification("Project Berhasil Disimpan!");
     e.target.reset();
     toggleModal("project-modal", false);
     refreshAllData();
   } catch (err) {
-    console.error("Project Save Error:", err);
-    showNotification("Save Failed: " + err.message, true);
+    showNotification("Error Proyek: " + err.message, true);
+    console.error(err);
   } finally {
-    submitBtn.innerText = "Save Project";
-    submitBtn.disabled = false;
+    btn.innerText = "Save";
+    btn.disabled = false;
+  }
+};
+
+document.getElementById("cert-form").onsubmit = async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById("s-submit-btn");
+  btn.innerText = "SAVING...";
+  btn.disabled = true;
+
+  const file = document.getElementById("s-file").files[0];
+  let imageUrl = null;
+
+  try {
+    if (file) {
+      const fileName = `certs/${Date.now()}-${file.name}`;
+      const { data: uploadData, error: uploadError } =
+        await supabaseClient.storage.from("projects").upload(fileName, file);
+
+      if (uploadError) {
+        throw new Error("Storage Error: " + uploadError.message);
+      }
+
+      const {
+        data: { publicUrl },
+      } = supabaseClient.storage.from("projects").getPublicUrl(fileName);
+      imageUrl = publicUrl;
+    }
+
+    const payload = {
+      title: document.getElementById("s-title").value,
+      issuer: document.getElementById("s-issuer").value,
+      date: document.getElementById("s-date").value,
+      description: document.getElementById("s-description").value,
+    };
+
+    if (imageUrl) payload.image = imageUrl;
+
+    const { error: dbError } = await supabaseClient
+      .from("certificates")
+      .insert([payload]);
+
+    if (dbError) {
+      if (dbError.message.includes("image")) {
+        throw new Error(
+          "PENTING: Tambahkan kolom 'image' (tipe: text) ke tabel 'certificates' di dashboard Supabase kamu.",
+        );
+      }
+      throw new Error("Database Error: " + dbError.message);
+    }
+
+    showNotification("Sertifikat Berhasil Disimpan!");
+    e.target.reset();
+    toggleModal("cert-modal", false);
+    refreshAllData();
+  } catch (err) {
+    console.error("CERT_SAVE_ERROR:", err);
+    showNotification(err.message, true);
+  } finally {
+    btn.innerText = "Save";
+    btn.disabled = false;
   }
 };
 
 document.getElementById("exp-form").onsubmit = async (e) => {
   e.preventDefault();
-  const { error } = await supabaseClient
-    .from("experience")
-    .insert([
-      {
-        title: document.getElementById("e-title").value,
-        company: document.getElementById("e-company").value,
-        period: document.getElementById("e-period").value,
-        description: document.getElementById("e-description").value,
-      },
-    ]);
+  const { error } = await supabaseClient.from("experience").insert([
+    {
+      title: document.getElementById("e-title").value,
+      company: document.getElementById("e-company").value,
+      period: document.getElementById("e-period").value,
+      description: document.getElementById("e-description").value,
+    },
+  ]);
   if (!error) {
-    showNotification("History Saved!");
+    showNotification("Riwayat Berhasil Disimpan!");
     e.target.reset();
     toggleModal("exp-modal", false);
     refreshAllData();
+  } else {
+    showNotification("DB Error: " + error.message, true);
   }
 };
-document.getElementById("cert-form").onsubmit = async (e) => {
-  e.preventDefault();
-  const { error } = await supabaseClient
-    .from("certificates")
-    .insert([
-      {
-        title: document.getElementById("s-title").value,
-        issuer: document.getElementById("s-issuer").value,
-        date: document.getElementById("s-date").value,
-        description: document.getElementById("s-description").value,
-      },
-    ]);
-  if (!error) {
-    showNotification("Award Saved!");
-    e.target.reset();
-    toggleModal("cert-modal", false);
-    refreshAllData();
-  }
-};
+
 document.getElementById("contact-form").onsubmit = async (e) => {
   e.preventDefault();
-  const { error } = await supabaseClient
-    .from("messages")
-    .insert([
-      {
-        name: document.getElementById("c-name").value,
-        email: document.getElementById("c-email").value,
-        message: document.getElementById("c-message").value,
-      },
-    ]);
+  const { error } = await supabaseClient.from("messages").insert([
+    {
+      name: document.getElementById("c-name").value,
+      email: document.getElementById("c-email").value,
+      message: document.getElementById("c-message").value,
+    },
+  ]);
   if (!error) {
-    showNotification("Vision Sent!");
+    showNotification("Pesan Terkirim!");
     e.target.reset();
   }
 };
@@ -372,7 +496,6 @@ window.toggleAdmin = (show) => {
   document.getElementById("user-view").style.display = show ? "none" : "block";
   document.getElementById("admin-view").classList.toggle("active", show);
   window.scrollTo(0, 0);
-  lucide.createIcons();
 };
 window.switchAdminTab = (tab) => {
   document
